@@ -861,6 +861,23 @@ def handle_function_call(
         except Exception as _hook_err:
             logger.debug("post_tool_call hook error: %s", _hook_err)
 
+        # Optional Hermes-native Autobrowse recorder. Disabled by default;
+        # when explicitly enabled it captures only allowlisted browser/web
+        # tool metadata into an autobrowse workspace for later skillification.
+        try:
+            from agent.autobrowse_recorder import maybe_record_tool_call
+            maybe_record_tool_call(
+                tool_name=function_name,
+                args=function_args,
+                result=result,
+                task_id=task_id or "",
+                session_id=session_id or "",
+                tool_call_id=tool_call_id or "",
+                duration_ms=duration_ms,
+            )
+        except Exception as _recorder_err:
+            logger.debug("autobrowse recorder hook error: %s", _recorder_err)
+
         # Generic tool-result canonicalization seam: plugins receive the
         # final result string (JSON, usually) and may replace it by
         # returning a string from transform_tool_result. Runs after
