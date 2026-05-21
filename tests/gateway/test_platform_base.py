@@ -295,6 +295,19 @@ class TestExtractMedia:
         assert len(media) == 1
         assert "Here is your audio" in cleaned
 
+    def test_media_tag_supports_html_documents(self):
+        content = "Guide attached\nMEDIA:/tmp/hyperframes-educational-guide.html"
+        media, cleaned = BasePlatformAdapter.extract_media(content)
+        assert media == [("/tmp/hyperframes-educational-guide.html", False)]
+        assert "MEDIA:" not in cleaned
+        assert "Guide attached" in cleaned
+
+    def test_media_tag_supports_htm_documents(self):
+        content = "MEDIA:/tmp/report.htm"
+        media, cleaned = BasePlatformAdapter.extract_media(content)
+        assert media == [("/tmp/report.htm", False)]
+        assert cleaned == ""
+
     def test_cleaned_content_trims_excess_newlines(self):
         content = "Before\n\nMEDIA:/audio.ogg\n\n\n\nAfter"
         _, cleaned = BasePlatformAdapter.extract_media(content)
